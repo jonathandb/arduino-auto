@@ -14,13 +14,8 @@ by Jonathan De Beir
 #define DEBUG
 #define arraySize(x)  (sizeof(x) / sizeof(x[0]))
 
-//adcpins
-#define irPin1 0
-#define irPin2 1
-#define irPin3 2
-#define irPin4 3
 
-#define irPinDelay 200
+
 #define irTreshold 100
 #define irIdeal 200
 #define irIdealMargin 20
