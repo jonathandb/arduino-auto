@@ -14,12 +14,56 @@ void setup()
 
 void loop()
 {
+  receiveSerialData();
   ir.gatherIrValuesAndSort();
   calculateDirectionIrLight();
   int motorSpeed=ir.sensors[0].irValue/4;
   motor.adjust(200, 200);
   delay(100);
 }
+
+boolean receiveSerialData() {
+  if (Serial.available() > 0) {
+    byte initByte = Serial.read();
+#ifdef DEBUG
+    Serial.print("First received byte is: ");
+    Serial.print(initByte);
+    Serial.print("\n");
+#endif
+    if(initByte == 0xFF) {
+      unsigned long startTime = millis();    
+      while ((Serial.available()<4) && ((millis()-startTime) < maxSerialLatency))
+      {      
+        // wait until we get 4 bytes of data or maxSerialLatency has gone by
+      }
+      byte firstByte = Serial.read();
+      byte secondByte = Serial.read();
+      byte thirdByte = Serial.read();
+      byte fourthByte = Serial.read();
+#ifdef DEBUG
+      Serial.print("byte 1 is: ");
+      Serial.print(firstByte);
+      Serial.print("\n");
+      Serial.print("byte 1 is: ");
+      Serial.print(secondByte);
+      Serial.print("\n");
+      Serial.print("byte 1 is: ");
+      Serial.print(thirdByte);
+      Serial.print("\n");
+      Serial.print("byte 1 is: ");
+      Serial.print(fourthByte);
+      Serial.print("\n");
+#endif
+      int directDist = firstByte + (secondByte << 8);
+      int latDist = thirdByte + (fourthByte << 8);
+      cameraPosition = (CameraPosition) {
+        directDist,latDist};
+      return true;
+    }
+  }
+  return false;
+}
+
 
 void calculateDirectionIrLight() {
   //ir light seen?
@@ -30,15 +74,15 @@ void calculateDirectionIrLight() {
       Serial.print(" is the closest\n");
 #endif
 
-    if(ir.sensors[0].direction == frontLeft || ir.sensors[0].direction == backLeft) {
-      addLatDistFromCenter(-1023);
-    }
-    else {
-      addLatDistFromCenter(1023);
-    }
+      if(ir.sensors[0].direction == frontLeft || ir.sensors[0].direction == backLeft) {
+        addLatDistFromCenter(-1023);
+      }
+      else {
+        addLatDistFromCenter(1023);
+      }
 
-    addDirectDistFromCenter(ir.sensors[0].irValue);
-	}
+      addDirectDistFromCenter(ir.sensors[0].irValue);
+    }
     else {
 #ifdef DEBUG
       Serial.print(enumDirectionToString(ir.sensors[0].direction));
@@ -60,7 +104,7 @@ void calculateDirectionIrLight() {
           latDistFromCenter = ir.sensors[0].irValue - ir.sensors[1].irValue;
         }        
         addLatDistFromCenter(latDistFromCenter);
-        
+
         unsigned int directDistFromCenter = (abs(ir.sensors[0].irValue) + abs(ir.sensors[1].irValue)) / 2;
         addDirectDistFromCenter(directDistFromCenter);
       }
@@ -80,37 +124,37 @@ void calculateDirectionIrLight() {
       //ir on left?
       else if(ir.sensors[0].direction == frontLeft || ir.sensors[0].direction == backLeft && ir.sensors[1].direction == frontLeft || ir.sensors[1].direction == backLeft) {
         addLatDistFromCenter(-1023);
-        
+
         unsigned int directDistFromCenter = (abs(ir.sensors[0].irValue) + abs(ir.sensors[1].irValue)) / 2;
         addDirectDistFromCenter(directDistFromCenter);
       }
       //ir on right?
       else if(ir.sensors[0].direction == backRight || ir.sensors[0].direction == frontRight && ir.sensors[1].direction == backRight || ir.sensors[1].direction == frontRight) {
         addLatDistFromCenter(1023);
-        
+
         unsigned int directDistFromCenter = (abs(ir.sensors[0].irValue) + abs(ir.sensors[1].irValue)) / 2;
         addDirectDistFromCenter(directDistFromCenter);
       }
     }
   } 
 #ifdef DEBUG
-    Serial.print("no ir found\n");
-    int i;
-    for (i = 0; i < 4; i++) {
-      Serial.print("irValue: ");
-      Serial.print(ir.sensors[i].irValue);
-      Serial.print(" direction: ");
-      Serial.print(enumDirectionToString(ir.sensors[i].direction));
-      Serial.print("\t\n");
-    }
-    Serial.print("latDistFromCenter: ");
-    Serial.print(latDistFromCenter[0]);
-    Serial.print("latDistFromCenterAverage: ");
-    Serial.print(latDistFromCenterAverage);
-    Serial.print("\n");
-    Serial.print("directDistFromCenterAverage: ");
-    Serial.print(directDistFromCenterAverage);
-    Serial.print("\n\n");
+  Serial.print("no ir found\n");
+  int i;
+  for (i = 0; i < 4; i++) {
+    Serial.print("irValue: ");
+    Serial.print(ir.sensors[i].irValue);
+    Serial.print(" direction: ");
+    Serial.print(enumDirectionToString(ir.sensors[i].direction));
+    Serial.print("\t\n");
+  }
+  Serial.print("latDistFromCenter: ");
+  Serial.print(latDistFromCenter[0]);
+  Serial.print("latDistFromCenterAverage: ");
+  Serial.print(latDistFromCenterAverage);
+  Serial.print("\n");
+  Serial.print("directDistFromCenterAverage: ");
+  Serial.print(directDistFromCenterAverage);
+  Serial.print("\n\n");
 #endif
 }
 
@@ -129,31 +173,34 @@ const char * enumDirectionToString(Direction direction) {
   return "direction not found";
 }
 
-
-
 void addLatDistFromCenter(int latestlatDistFromCenter) {
   latDistFromCenterTotal -= latDistFromCenter[latDistFromCenterSize - 1];
-  
+
   for(int i = 0; i < latDistFromCenterSize - 1; i++) {
     latDistFromCenter[i + 1] = latDistFromCenter[i];
   } 
   latDistFromCenter[0] = latestlatDistFromCenter;
-  
+
   latDistFromCenterTotal += latDistFromCenter[0];
   latDistFromCenterAverage = latDistFromCenterTotal / latDistFromCenterSize;
-  
+
 }
 
 void addDirectDistFromCenter(unsigned int latestDirectDistFromCenter) {
   directDistFromCenterTotal -= directDistFromCenter[directDistFromCenterSize - 1];
-  
+
   for(int i = 0; i < directDistFromCenterSize - 1; i++) {
     directDistFromCenter[i + 1] = directDistFromCenter[i];
   } 
   directDistFromCenter[0] = latestDirectDistFromCenter;
-  
+
   directDistFromCenterTotal += directDistFromCenter[0];
   directDistFromCenterAverage = latDistFromCenterTotal / latDistFromCenterSize;
 }
+
+
+
+
+
 
 

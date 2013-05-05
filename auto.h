@@ -20,6 +20,7 @@ by Jonathan De Beir
 #define irIdeal 200
 #define irIdealMargin 20
 #define maxOutOfDirection 30
+#define maxSerialLatency 100
 
 void addDirectDistFromCenter(unsigned int latestDirectDistFromCenter);
 int compareIrValues(struct IrSensor *irSensor1, struct IrSensor *irSensor2);
@@ -34,3 +35,9 @@ unsigned int directDistFromCenterAverage;
 unsigned int latDistFromCenterTotal;
 unsigned int directDistFromCenterTotal;
 
+typedef struct CameraPosition { 
+  int directDist;
+  int latDist;
+};
+
+struct CameraPosition cameraPosition;
