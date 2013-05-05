@@ -90,6 +90,7 @@ void Motor::adjust(int speedMotor1, int speedMotor2) {
   #endif
 }
 
+
 void Motor::testMotors() {
   unsigned int valuePot1 = analogRead(testPotPin1);
   delay(10);

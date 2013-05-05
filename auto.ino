@@ -4,22 +4,108 @@
 
 Motor motor;
 IR ir;
+Modus modus = off;
+Modus previousModus;
 //(&Input, &Output, &Setpoint,2,3,1, DIRECT);
 //PID pidMotorSturing;
 
 void setup()
 {
   Serial.begin(9600);
+  pinMode(onSwitchPin, INPUT);
+  pinMode(infraredSwitchPin, INPUT);
+  pinMode(cameraSwitchPin, INPUT);
 }
 
 void loop()
 {
-  receiveSerialData();
-  ir.gatherIrValuesAndSort();
-  calculateDirectionIrLight();
-  int motorSpeed=ir.sensors[0].irValue/4;
-  motor.adjust(200, 200);
+  if (checkModus()) {
+    switch(modus)
+    {
+    case off:
+      motor.adjust(0, 0);
+      return;
+    case camera:
+      lastReceivedCameraMessageTime = millis();
+      //if correct message is received, control the motor
+      if(receiveSerialData()) {
+        controlMotorWithCamera();
+      } else {
+        //if the last message takes longer than maxSerialLatency, then the motor is stopped
+        if (millis() - cameraMessageLatency > maxSerialLatency) {
+          motor.adjust(0, 0);
+        }
+      }
+    case infrared:
+      ir.gatherIrValuesAndSort();
+      calculateDirectionIrLight();
+      controlMotorWithIr();
+    case hybrid:
+      ir.gatherIrValuesAndSort();
+      calculateDirectionIrLight();      
+      //if correct message is received, control the motor
+      if(receiveSerialData()) {
+        controlMotorWithIrAndCamera();
+      } else {
+        //if the last message takes longer than maxSerialLatency, then only the infrared sensors are used to control the motor
+        if (millis() - cameraMessageLatency > maxSerialLatency) {
+          motor.adjust(0, 0);
+        }
+      }
+      receiveSerialData();
+    }
+  }
+  
   delay(100);
+}
+
+void controlMotorWithCamera() {
+
+}
+
+void controlMotorWithIr() {
+  //if distance is 700 speed is ideal, wdirectDistFromCenteAverage > 700 => less speed
+  int motor1Speed = (100 / directDistFromCenterAverage) * (latDistFromCenterTotal-500)/4;
+  int motor2Speed = (100/ directDistFromCenterAverage) * latDistFromCenterTotal/4;
+  ;
+  if (motor1Speed > 255) {
+    motorSp1eed = 255; 
+  }
+  if (motor1Speed < -255) {
+    motor1Speed = -255; 
+  }
+  if (motor2Speed > 255) {
+    motor2Speed = 255; 
+  }
+  if (motor2Speed < -255) {
+    motor2Speed = -255; 
+  }
+}
+
+void controlMotorWithIrAndCamera() {
+  
+}
+
+
+
+boolean checkModus() {
+  if(!digitalRead(onSwitchPin)) {
+    modus = off;
+  } else if(digitalRead(infraredSwitchPin)) {
+    modus = infrared;
+  } else if(digitalRead(cameraSwitchPin)) {
+    modus = camera;
+  } else {
+    modus = hybrid;
+  }
+  
+  if(modus == previousModus) {
+    previousModus = modus;
+    return false;
+  } else {
+    previousModus = modus;
+    return true;
+  }
 }
 
 boolean receiveSerialData() {
@@ -31,7 +117,7 @@ boolean receiveSerialData() {
     Serial.print("\n");
 #endif
     if(initByte == 0xFF) {
-      unsigned long startTime = millis();    
+      unsigned long startTime = millis();
       while ((Serial.available()<4) && ((millis()-startTime) < maxSerialLatency))
       {      
         // wait until we get 4 bytes of data or maxSerialLatency has gone by
@@ -44,16 +130,17 @@ boolean receiveSerialData() {
       Serial.print("byte 1 is: ");
       Serial.print(firstByte);
       Serial.print("\n");
-      Serial.print("byte 1 is: ");
+      Serial.print("byte 2 is: ");
       Serial.print(secondByte);
       Serial.print("\n");
-      Serial.print("byte 1 is: ");
+      Serial.print("byte 3 is: ");
       Serial.print(thirdByte);
       Serial.print("\n");
-      Serial.print("byte 1 is: ");
+      Serial.print("byte 4 is: ");
       Serial.print(fourthByte);
       Serial.print("\n");
 #endif
+      lastReceivedCameraMessageTime = millis();
       int directDist = firstByte + (secondByte << 8);
       int latDist = thirdByte + (fourthByte << 8);
       cameraPosition = (CameraPosition) {
@@ -63,7 +150,6 @@ boolean receiveSerialData() {
   }
   return false;
 }
-
 
 void calculateDirectionIrLight() {
   //ir light seen?

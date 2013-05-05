@@ -21,6 +21,11 @@ by Jonathan De Beir
 #define irIdealMargin 20
 #define maxOutOfDirection 30
 #define maxSerialLatency 100
+#define cameraMessageLatency 100
+
+#define onSwitchPin 11
+#define infraredSwitchPin 12
+#define cameraSwitchPin 13
 
 void addDirectDistFromCenter(unsigned int latestDirectDistFromCenter);
 int compareIrValues(struct IrSensor *irSensor1, struct IrSensor *irSensor2);
@@ -39,5 +44,15 @@ typedef struct CameraPosition {
   int directDist;
   int latDist;
 };
+unsigned long lastReceivedCameraMessageTime = 0;
+
 
 struct CameraPosition cameraPosition;
+
+enum Modus {
+  off, 
+  infrared, 
+  camera, 
+  hybrid
+};
+
