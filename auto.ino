@@ -69,7 +69,7 @@ void controlMotorWithIr() {
   int motor2Speed = (100/ directDistFromCenterAverage) * latDistFromCenterTotal/4;
   ;
   if (motor1Speed > 255) {
-    motorSp1eed = 255; 
+    motor1Speed = 255; 
   }
   if (motor1Speed < -255) {
     motor1Speed = -255; 
