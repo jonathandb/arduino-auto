@@ -60,14 +60,12 @@ void loop()
 }
 
 void controlMotorWithCamera() {
-
-}
-
-void controlMotorWithIr() {
-  //if distance is 700 speed is ideal, wdirectDistFromCenteAverage > 700 => less speed
-  int motor1Speed = (100 / directDistFromCenterAverage) * (latDistFromCenterTotal-500)/4;
-  int motor2Speed = (100/ directDistFromCenterAverage) * latDistFromCenterTotal/4;
-  ;
+  //if distance is 700 speed is ideal, directDistFromCenteAverage > 700 => less speed
+  int turnSpeed = (cameraPosition.latDist / 4);
+  int distanceSpeed = (100 / cameraPosition.directDist);
+  int motor1Speed = distanceSpeed + turnSpeed;
+  int motor2Speed = distanceSpeed - turnSpeed;
+  
   if (motor1Speed > 255) {
     motor1Speed = 255; 
   }
@@ -80,10 +78,53 @@ void controlMotorWithIr() {
   if (motor2Speed < -255) {
     motor2Speed = -255; 
   }
+  motor.adjust(motor1Speed, motor2Speed);
+}
+
+void controlMotorWithIr() {
+  //if distance is 700 speed is ideal, directDistFromCenteAverage > 700 => less speed
+  int turnSpeed = (latDistFromCenterAverage / 4);
+  int distanceSpeed = abs((100 / directDistFromCenterAverage) - abs(turnSpeed));
+  int motor1Speed = distanceSpeed + turnSpeed;
+  int motor2Speed = distanceSpeed - turnSpeed;
+  
+  if (motor1Speed > 255) {
+    motor1Speed = 255; 
+  }
+  if (motor1Speed < -255) {
+    motor1Speed = -255; 
+  }
+  if (motor2Speed > 255) {
+    motor2Speed = 255; 
+  }
+  if (motor2Speed < -255) {
+    motor2Speed = -255; 
+  }
+  motor.adjust(motor1Speed, motor2Speed);
 }
 
 void controlMotorWithIrAndCamera() {
+  //if distance is 700 speed is ideal, directDistFromCenteAverage > 700 => less speed
+  int turnSpeed1 = (cameraPosition.latDist / 4);
+  int turnSpeed2 = (latDistFromCenterAverage / 4);
+  int turnSpeed = (turnSpeed1 + turnSpeed2) / 2;
+  int distanceSpeed = (100 / cameraPosition.directDist);
+  int motor1Speed = distanceSpeed + turnSpeed;
+  int motor2Speed = distanceSpeed - turnSpeed;
   
+  if (motor1Speed > 255) {
+    motor1Speed = 255; 
+  }
+  if (motor1Speed < -255) {
+    motor1Speed = -255; 
+  }
+  if (motor2Speed > 255) {
+    motor2Speed = 255; 
+  }
+  if (motor2Speed < -255) {
+    motor2Speed = -255; 
+  }
+  motor.adjust(motor1Speed, motor2Speed);
 }
 
 
