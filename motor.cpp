@@ -25,6 +25,8 @@
 //0 is no braking, 255 is max braking
 #define brakeIntensity 50
 
+#define motorSpeedChangeLatency 50
+
 Motor::Motor() {
   init();
   _enable=true;
@@ -52,8 +54,56 @@ void Motor::enable(boolean enable) {
   analogWrite(motor2pin2, 255);  
 }
 
-void Motor::adjust(int speedMotor1, int speedMotor2) {
-  if (_enable == true) {
+void Motor::changeSpeed(int speed1, int speed2) {
+  desiredSpeed1 = speed1;
+  desiredSpeed2 = speed2;
+}
+
+void Motor::updateSpeed() {
+   if(millis() - lastChangedMotorTime > motorSpeedChangeLatency && _enable == true) {
+    if(desiredSpeed1 > speedMotor1) {
+      speedMotor1 += 10;
+      if(desiredSpeed1 < speedMotor1) {
+        speedMotor1 = desiredSpeed1;
+      }
+    } else if(desiredSpeed1 < speedMotor1) {
+      speedMotor1 -= 10;
+      if(desiredSpeed1 > speedMotor1) {
+        speedMotor1 = desiredSpeed1;
+      }      
+    }
+    if(desiredSpeed2 > speedMotor2) {
+      speedMotor2 += 10;
+      if(desiredSpeed2 < speedMotor2) {
+        speedMotor2 = desiredSpeed2;
+      }
+    } else if(desiredSpeed2 < speedMotor2){
+      speedMotor2 -= 10;
+      if(desiredSpeed2 > speedMotor2) {
+        speedMotor2 = desiredSpeed2;
+      }      
+    }
+    lastChangedMotorTime = millis();
+    adjust();
+    #ifdef DEBUG
+    Serial.print("Desired Speed motor 1,2 resp:");
+    Serial.print("\t");
+    Serial.print(desiredSpeed1);
+    Serial.print("\t");
+    Serial.print(desiredSpeed2);
+    Serial.print("\n");
+    Serial.print("Current Speed motor 1,2 resp:");
+    Serial.print("\t");
+    Serial.print(speedMotor1);
+    Serial.print("\t");
+    Serial.print(speedMotor2);
+    Serial.print("\n\n");
+    #endif
+  }  
+}
+
+void Motor::adjust() {
+  if(_enable == true) {
     if (speedMotor1 > 0) {
       analogWrite(motor1pin1, 255 - speedMotor1);
       analogWrite(motor1pin2, 255 - speedMotor1);
@@ -80,14 +130,6 @@ void Motor::adjust(int speedMotor1, int speedMotor2) {
       analogWrite(motor2pin2, 255 - brakeIntensity);
     }
   }
-  #ifdef DEBUG
-  Serial.print("Setting speeds motor 1,2 resp:");
-  Serial.print("\t");
-  Serial.print(speedMotor1);
-  Serial.print("\t");
-  Serial.print(speedMotor2);
-  Serial.print("\n\n");
-  #endif
 }
 
 
@@ -109,5 +151,5 @@ void Motor::testMotors() {
   if (valuePot2>10) {
     speedMotor2 = valuePot2/4;
   }
-  adjust(speedMotor1,speedMotor2);
+  adjust();
 }

@@ -23,7 +23,7 @@ void loop()
     switch(modus)
     {
     case off:
-      motor.adjust(0, 0);
+      motor.changeSpeed(0, 0);
       return;
     case camera:
       lastReceivedCameraMessageTime = millis();
@@ -33,7 +33,7 @@ void loop()
       } else {
         //if the last message takes longer than maxSerialLatency, then the motor is stopped
         if (millis() - cameraMessageLatency > maxSerialLatency) {
-          motor.adjust(0, 0);
+          motor.changeSpeed(0, 0);
         }
       }
     case infrared:
@@ -49,14 +49,14 @@ void loop()
       } else {
         //if the last message takes longer than maxSerialLatency, then only the infrared sensors are used to control the motor
         if (millis() - cameraMessageLatency > maxSerialLatency) {
-          motor.adjust(0, 0);
+          motor.changeSpeed(0, 0);
         }
       }
       receiveSerialData();
     }
   }
-  
-  delay(100);
+
+  motor.updateSpeed();
 }
 
 void controlMotorWithCamera() {
@@ -78,7 +78,7 @@ void controlMotorWithCamera() {
   if (motor2Speed < -255) {
     motor2Speed = -255; 
   }
-  motor.adjust(motor1Speed, motor2Speed);
+  motor.changeSpeed(motor1Speed, motor2Speed);
 }
 
 void controlMotorWithIr() {
@@ -100,7 +100,7 @@ void controlMotorWithIr() {
   if (motor2Speed < -255) {
     motor2Speed = -255; 
   }
-  motor.adjust(motor1Speed, motor2Speed);
+  motor.changeSpeed(motor1Speed, motor2Speed);
 }
 
 void controlMotorWithIrAndCamera() {
@@ -124,10 +124,8 @@ void controlMotorWithIrAndCamera() {
   if (motor2Speed < -255) {
     motor2Speed = -255; 
   }
-  motor.adjust(motor1Speed, motor2Speed);
+  motor.changeSpeed(motor1Speed, motor2Speed);
 }
-
-
 
 boolean checkModus() {
   if(!digitalRead(onSwitchPin)) {

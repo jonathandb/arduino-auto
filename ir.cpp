@@ -22,10 +22,14 @@ IR::IR() {
 
 void IR::init() {
   //turn on pull up resistors too avoid floating input
-  digitalWrite(irPin1, HIGH);
-  digitalWrite(irPin2, HIGH);
-  digitalWrite(irPin3, HIGH);
-  digitalWrite(irPin4, HIGH);
+//  digitalWrite(irPin1, HIGH);
+//  digitalWrite(irPin2, HIGH);
+//  digitalWrite(irPin3, HIGH);
+//  digitalWrite(irPin4, HIGH);
+  pinMode(irPin1, INPUT);
+  pinMode(irPin2, INPUT);
+  pinMode(irPin3, INPUT);
+  pinMode(irPin4, INPUT);
 }
 
 void IR::gatherIrValuesAndSort() {
