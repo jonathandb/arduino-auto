@@ -18,6 +18,6 @@ public:
   void gatherIrValuesAndSort();
   struct IrSensor sensors[4];
 private:
-  //int compareIrValues(struct IrSensor *irSensor1, struct IrSensor *irSensor2);
+  //int compareIrValues(const void* p1, const void* p2);
   void init();
 };

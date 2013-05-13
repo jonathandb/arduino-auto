@@ -35,9 +35,10 @@ int latDistFromCenter[10];
 int directDistFromCenter[10];
 #define latDistFromCenterSize arraySize(latDistFromCenter)
 #define directDistFromCenterSize arraySize(directDistFromCenter)
-unsigned int latDistFromCenterAverage;
+
+int latDistFromCenterAverage;
+int latDistFromCenterTotal;
 unsigned int directDistFromCenterAverage;
-unsigned int latDistFromCenterTotal;
 unsigned int directDistFromCenterTotal;
 
 typedef struct CameraPosition { 

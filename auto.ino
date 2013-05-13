@@ -19,41 +19,43 @@ void setup()
 
 void loop()
 {
-  if (checkModus()) {
-    switch(modus)
-    {
-    case off:
-      motor.changeSpeed(0, 0);
-      return;
-    case camera:
-      lastReceivedCameraMessageTime = millis();
-      //if correct message is received, control the motor
-      if(receiveSerialData()) {
-        controlMotorWithCamera();
-      } else {
-        //if the last message takes longer than maxSerialLatency, then the motor is stopped
-        if (millis() - cameraMessageLatency > maxSerialLatency) {
-          motor.changeSpeed(0, 0);
-        }
+  checkModus();
+  modus=infrared;
+  
+  switch(modus)
+  {
+  case off:
+    motor.changeSpeed(0, 0);
+    break;
+  case camera:
+    lastReceivedCameraMessageTime = millis();
+    //if correct message is received, control the motor
+    if(receiveSerialData()) {
+      controlMotorWithCamera();
+    } else {
+      //if the last message takes longer than maxSerialLatency, then the motor is stopped
+      if (millis() - cameraMessageLatency > maxSerialLatency) {
+        motor.changeSpeed(0, 0);
       }
-    case infrared:
-      ir.gatherIrValuesAndSort();
-      calculateDirectionIrLight();
-      controlMotorWithIr();
-    case hybrid:
-      ir.gatherIrValuesAndSort();
-      calculateDirectionIrLight();      
-      //if correct message is received, control the motor
-      if(receiveSerialData()) {
-        controlMotorWithIrAndCamera();
-      } else {
-        //if the last message takes longer than maxSerialLatency, then only the infrared sensors are used to control the motor
-        if (millis() - cameraMessageLatency > maxSerialLatency) {
-          motor.changeSpeed(0, 0);
-        }
-      }
-      receiveSerialData();
     }
+    break;
+  case infrared:
+    ir.gatherIrValuesAndSort();
+    calculateDirectionIrLight();
+    controlMotorWithIr();
+  case hybrid:
+    ir.gatherIrValuesAndSort();
+    calculateDirectionIrLight();      
+    //if correct message is received, control the motor
+    if(receiveSerialData()) {
+      controlMotorWithIrAndCamera();
+    } else {
+      //if the last message takes longer than maxSerialLatency, then only the infrared sensors are used to control the motor
+      if (millis() - cameraMessageLatency > maxSerialLatency) {
+        motor.changeSpeed(0, 0);
+      }
+    }
+    receiveSerialData();
   }
 
   motor.updateSpeed();
@@ -83,8 +85,11 @@ void controlMotorWithCamera() {
 
 void controlMotorWithIr() {
   //if distance is 700 speed is ideal, directDistFromCenteAverage > 700 => less speed
-  int turnSpeed = (latDistFromCenterAverage / 4);
-  int distanceSpeed = abs((100 / directDistFromCenterAverage) - abs(turnSpeed));
+  
+  int turnSpeed = (latDistFromCenter[0] / 4);
+  //int turnSpeed = (latDistFromCenterAverage / 4);
+  int distanceSpeed = abs((100 / directDistFromCenter[0]) - abs(turnSpeed));
+  //int distanceSpeed = abs((100 / directDistFromCenterAverage) - abs(turnSpeed));
   int motor1Speed = distanceSpeed + turnSpeed;
   int motor2Speed = distanceSpeed - turnSpeed;
   
@@ -274,7 +279,7 @@ void calculateDirectionIrLight() {
   }
   Serial.print("latDistFromCenter: ");
   Serial.print(latDistFromCenter[0]);
-  Serial.print("latDistFromCenterAverage: ");
+  Serial.print(" latDistFromCenterAverage: ");
   Serial.print(latDistFromCenterAverage);
   Serial.print("\n");
   Serial.print("directDistFromCenterAverage: ");
@@ -308,7 +313,6 @@ void addLatDistFromCenter(int latestlatDistFromCenter) {
 
   latDistFromCenterTotal += latDistFromCenter[0];
   latDistFromCenterAverage = latDistFromCenterTotal / latDistFromCenterSize;
-
 }
 
 void addDirectDistFromCenter(unsigned int latestDirectDistFromCenter) {
@@ -320,7 +324,7 @@ void addDirectDistFromCenter(unsigned int latestDirectDistFromCenter) {
   directDistFromCenter[0] = latestDirectDistFromCenter;
 
   directDistFromCenterTotal += directDistFromCenter[0];
-  directDistFromCenterAverage = latDistFromCenterTotal / latDistFromCenterSize;
+  directDistFromCenterAverage = directDistFromCenterAverage / directDistFromCenterAverage;
 }
 
 

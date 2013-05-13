@@ -11,7 +11,7 @@
 #define irPin3 2
 #define irPin4 3
 
-#define sensorsSize arraySize(IrSensor)
+#define sensorSize sizeof(IrSensor)
 
 
 typedef int (IR::*compfn)(const void*, const void*);
@@ -22,10 +22,11 @@ IR::IR() {
 
 void IR::init() {
   //turn on pull up resistors too avoid floating input
-//  digitalWrite(irPin1, HIGH);
-//  digitalWrite(irPin2, HIGH);
-//  digitalWrite(irPin3, HIGH);
-//  digitalWrite(irPin4, HIGH);
+  digitalWrite(irPin1, HIGH);
+  digitalWrite(irPin2, HIGH);
+  digitalWrite(irPin3, HIGH);
+  digitalWrite(irPin4, HIGH);
+
   pinMode(irPin1, INPUT);
   pinMode(irPin2, INPUT);
   pinMode(irPin3, INPUT);
@@ -44,24 +45,19 @@ void IR::gatherIrValuesAndSort() {
   unsigned int valueIr4 = analogRead(irPin4);
   delay(irPinDelay);
 
-  sensors[0] = (IrSensor) {
-    valueIr1, frontLeft    };
-  sensors[1] = (IrSensor) {
-    valueIr2, frontRight    };
-  sensors[2] = (IrSensor) {
-    valueIr3, backLeft    };
-  sensors[3] = (IrSensor) {
-    valueIr4, backRight    };
+  sensors[0] = (IrSensor) { valueIr2, frontRight };
+  sensors[1] = (IrSensor) { valueIr1, frontLeft };
+  sensors[2] = (IrSensor) { valueIr3, backLeft };
+  sensors[3] = (IrSensor) { valueIr4, backRight };
 
   //http://www.cplusplus.com/reference/cstdlib/qsort/
-  qsort((void *) &sensors, 4, sensorsSize, compareIrValues );              
+  qsort((void *) &sensors, 4, sensorSize, compareIrValues);
 }
 
 int compareIrValues(const void* p1, const void* p2)
 {
   struct IrSensor *irSensor1 = (struct IrSensor *)p1;
   struct IrSensor *irSensor2 = (struct IrSensor *)p2;
-
   if (irSensor1->irValue < irSensor2->irValue)
     return 1;
 
