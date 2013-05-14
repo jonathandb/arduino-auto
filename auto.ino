@@ -306,8 +306,8 @@ const char * enumDirectionToString(Direction direction) {
 void addLatDistFromCenter(int latestlatDistFromCenter) {
   latDistFromCenterTotal -= latDistFromCenter[latDistFromCenterSize - 1];
 
-  for(int i = 0; i < latDistFromCenterSize - 1; i++) {
-    latDistFromCenter[i + 1] = latDistFromCenter[i];
+  for(int i = latDistFromCenterSize - 1; i > 0; i--) {
+    latDistFromCenter[i] = latDistFromCenter[i - 1];  
   } 
   latDistFromCenter[0] = latestlatDistFromCenter;
 
@@ -318,8 +318,8 @@ void addLatDistFromCenter(int latestlatDistFromCenter) {
 void addDirectDistFromCenter(unsigned int latestDirectDistFromCenter) {
   directDistFromCenterTotal -= directDistFromCenter[directDistFromCenterSize - 1];
 
-  for(int i = 0; i < directDistFromCenterSize - 1; i++) {
-    directDistFromCenter[i + 1] = directDistFromCenter[i];
+  for(int i = directDistFromCenterSize - 1; i >0; i--) {
+    directDistFromCenter[i] = directDistFromCenter[i - 1];
   } 
   directDistFromCenter[0] = latestDirectDistFromCenter;
 
