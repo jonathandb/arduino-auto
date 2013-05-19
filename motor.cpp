@@ -57,7 +57,7 @@ void Motor::enable(boolean enable) {
 void Motor::changeSpeed(int speed1, int speed2) {
   desiredSpeed1 = speed1;
   desiredSpeed2 = speed2;
-    Serial.print("Motor1, motor2: ");
+  Serial.print("Motor1, motor2: ");
   Serial.print(desiredSpeed1);
   Serial.print("\t");
   Serial.print(desiredSpeed2);

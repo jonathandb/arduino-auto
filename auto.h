@@ -17,7 +17,7 @@ by Jonathan De Beir
 
 
 #define irTreshold 100
-#define irIdeal 200
+#define irIdeal 40
 #define irIdealMargin 20
 #define maxOutOfDirection 30
 #define maxSerialLatency 100
@@ -31,10 +31,10 @@ void addDirectDistFromCenter(unsigned int latestDirectDistFromCenter);
 int compareIrValues(struct IrSensor *irSensor1, struct IrSensor *irSensor2);
 
 //list of current [0] and previous latDistFromCenter
-int latDistFromCenter[10];
-int directDistFromCenter[10];
-#define latDistFromCenterSize arraySize(latDistFromCenter)
-#define directDistFromCenterSize arraySize(directDistFromCenter)
+#define latDistFromCenterSize 5
+#define directDistFromCenterSize 5
+int latDistFromCenter[latDistFromCenterSize];
+int directDistFromCenter[directDistFromCenterSize];
 
 int latDistFromCenterAverage;
 int latDistFromCenterTotal;
