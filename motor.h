@@ -12,6 +12,7 @@ public:
 private:
   void init();
   void adjust();
+  void setPwmFrequency(int pin, int divisor);
   boolean _enable;
   int speedMotor1;
   int speedMotor2;

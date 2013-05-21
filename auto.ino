@@ -63,6 +63,7 @@ void loop()
   }
 
   motor.updateSpeed();
+  delay(1000);
 }
 
 void controlMotorWithCamera() {
@@ -89,19 +90,19 @@ void controlMotorWithCamera() {
 
 void controlMotorWithIr() {
   if(ir.sensors[0].irValue+ir.sensors[1].irValue > irTreshold * 2) {
-    //if distance is 700 speed is ideal, directDistFromCenteAverage > 700 => less speed
-    int turnSpeed = (latDistFromCenter[0] / 4);
-    //int turnSpeed = (latDistFromCenterAverage / 4);
-    int distanceSpeed = (1023 - directDistFromCenter[0])/4 - irIdeal;
+
+    int turnSpeed = (latDistFromCenterAverage / 4);
+    int distanceSpeed = (1023 - directDistFromCenterAverage)/4 - irIdeal;
     if(distanceSpeed < 0) {
       distanceSpeed = 0;
     }
-    //int distanceSpeed = abs((100 / directDistFromCenterAverage) - abs(turnSpeed));
+    #ifdef DEBUG
     Serial.print("turnSpeed is: ");
     Serial.print(turnSpeed);
     Serial.print(" distanceSpeed is: ");
     Serial.print(distanceSpeed);
     Serial.print("\n");
+    #endif
     
     int motor1Speed = distanceSpeed + turnSpeed;
     int motor2Speed = distanceSpeed - turnSpeed;

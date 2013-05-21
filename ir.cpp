@@ -1,6 +1,6 @@
 #include "ir.h"
 
-#define irPinDelay 200
+#define irPinDelay 20
 
 
 #define arraySize(x)  (sizeof(x) / sizeof(x[0]))
@@ -34,7 +34,7 @@ void IR::init() {
 }
 
 void IR::gatherIrValuesAndSort() {
-  // delay 10ms to let the ADC recover:
+  // delay to let the ADC recover:
   delay(irPinDelay);
   unsigned int valueIr1 = analogRead(irPin1);  
   delay(irPinDelay);
